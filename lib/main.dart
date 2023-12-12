@@ -1,4 +1,179 @@
 import 'package:flutter/material.dart';
+// class MyApp extends StatelessWidget {
+//   const MyApp({super.key});
+
+//   @override
+//   Widget build(BuildContext context) {
+//     return MaterialApp(
+//       debugShowCheckedModeBanner: false,
+//       home: HomePage(),
+//       theme: ThemeData(primarySwatch: Colors.orange),
+//     );
+//   }
+// }
+
+// class HomePage extends StatefulWidget {
+//   const HomePage({super.key});
+
+//   @override
+//   State<HomePage> createState() => _HomePageState();
+// }
+
+// class _HomePageState extends State<HomePage> {
+//   // reference the hive box
+//   final _myBox = Hive.box('todo_db');
+//   ToDoDataBase db = ToDoDataBase();
+
+//   @override
+//   void initState() {
+//     // if this is the 1st time ever openin the app, then create default data
+//     if (_myBox.get("tasklist") == null) {
+//       db.createInitialData();
+//     } else {
+//       // there already exists data
+//       db.loadData();
+//     }
+
+//     super.initState();
+//   }
+
+//   // text controller
+//   final _controller = TextEditingController();
+
+//   // checkbox was tapped
+//   void checkBoxChanged(bool? value, int index) {
+//     setState(() {
+//       db.tasklist[index][1] = !db.tasklist[index][1];
+//     });
+//     db.updateDataBase();
+//   }
+
+//   // save new task
+//   void saveNewTask() {
+//     setState(() {
+//       db.tasklist.add([_controller.text, false]);
+//       _controller.clear();
+//     });
+//     Navigator.of(context).pop();
+//     db.updateDataBase();
+//   }
+
+//   void saveTask(int index) {
+//     setState(() {
+//       db.tasklist[index][0] = _controller.text;
+//       _controller.clear();
+//     });
+//     Navigator.of(context).pop();
+//     db.updateDataBase();
+//   }
+
+//   // delete task
+//   void deleteTask(int index) {
+//     setState(() {
+//       db.tasklist.removeAt(index);
+//     });
+//     db.updateDataBase();
+//   }
+
+//   // create a new task
+//   void createNewTask() {
+//     showDialog(
+//       context: context,
+//       builder: (context) {
+//         return DialogBox(
+//           controller: _controller,
+//           onSave: saveNewTask,
+//           onCancel: () => Navigator.of(context).pop(),
+//         );
+//       },
+//     );
+//   }
+
+//   void changeTask(int index) {
+//     _controller.text = db.tasklist[index][0];
+//     // Navigator.of(context).pop();
+//     showDialog(
+//       context: context,
+//       builder: (context) {
+//         return DialogBox(
+//           controller: _controller,
+//           onSave: () => saveTask(index),
+//           onCancel: () {
+//             Navigator.of(context).pop();
+//             _controller.clear();
+//           },
+//         );
+//       },
+//     );
+//   }
+
+//   @override
+//   Widget build(BuildContext context) {
+//     if (db.tasklist.length > 0) {
+//       return Scaffold(
+//         backgroundColor: Colors.black,
+//         appBar: AppBar(
+//           title: Text('TO DO'),
+//           // elevation: 0,
+//         ),
+//         floatingActionButton: FloatingActionButton(
+//           onPressed: createNewTask,
+//           child: Icon(Icons.add),
+//         ),
+//         body: Container(
+//           child: Column(children: <Widget>[
+//             MaterialButton(
+//               color: Colors.orange,
+//               child: Text("Sort"),
+//               onPressed: () {
+//                 setState(() {
+//                   db.tasklist.sort(
+//                       (a, b) => a[1].toString().compareTo(b[1].toString()));
+//                 });
+//               },
+//             ),
+//             Expanded(
+//               child: ListView.builder(
+//                 itemCount: db.tasklist.length,
+//                 itemBuilder: (context, index) {
+//                   return MaterialButton(
+//                     onPressed: () => changeTask(index),
+//                     child: ToDoTile(
+//                       taskName: db.tasklist[index][0],
+//                       taskCompleted: db.tasklist[index][1],
+//                       onChanged: (value) => checkBoxChanged(value, index),
+//                       index: index,
+//                       deleteFunction: (context) => deleteTask(index),
+//                       changetask: (index) => changeTask(index),
+//                     ),
+//                   );
+//                 },
+//               ),
+//             ),
+//           ]),
+//         ),
+//       );
+//     } else {
+//       return Scaffold(
+//         backgroundColor: Colors.black,
+//         appBar: AppBar(
+//           title: Text('TO DO'),
+//           // elevation: 0,
+//         ),
+//         floatingActionButton: FloatingActionButton(
+//           onPressed: createNewTask,
+//           child: Icon(Icons.add),
+//         ),
+//         body: Center(
+//           child: Text(
+//             "no task",
+//             style: TextStyle(color: Colors.white, fontSize: 20),
+//           ),
+//         ),
+//       );
+//     }
+//   }
+// }
 
 void main() {
   runApp(
@@ -9,24 +184,23 @@ void main() {
 }
 
 extension DateTimeExt on DateTime {
-  DateTime get monthStart => DateTime(year, month);
-  DateTime get dayStart => DateTime(year, month, day);
+  DateTime get sftm => DateTime(year, month);
+  DateTime get startfromthisday => DateTime(year, month, day);
 
-  DateTime addMonth(int count) {
+  DateTime changemonth(int count) {
     return DateTime(year, month + count, day);
   }
 
-  DateTime tostartmonth(int startmonth,int startyear) {
-    return DateTime(startyear, startmonth, day);
+  DateTime gotostartmonth(int sftm, int sy) {
+    return DateTime(sy, sftm, day);
   }
 
-
-  bool isSameDate(DateTime date) {
+  bool checkdate(DateTime date) {
     return year == date.year && month == date.month && day == date.day;
   }
 
   bool get isToday {
-    return isSameDate(DateTime.now());
+    return checkdate(DateTime.now());
   }
 }
 
@@ -38,13 +212,13 @@ class MyApp extends StatefulWidget {
 }
 
 class _MyAppState extends State<MyApp> {
-  late DateTime selectedMonth;
+  late DateTime monthselected;
 
-  DateTime? selectedDate;
+  DateTime? dselected;
 
   @override
   void initState() {
-    selectedMonth = DateTime.now().monthStart;
+    monthselected = DateTime.now().sftm;
     super.initState();
   }
 
@@ -52,36 +226,30 @@ class _MyAppState extends State<MyApp> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-          title: Text('Calendar'),
+        title: Text('Calendar'),
       ),
       body: Center(
         child: Container(
-          // height: 550,
-          // width: 350,
-          decoration: BoxDecoration(
-            border: Border.all(color: Colors.black),
-          ),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               _Header(
-                selectedMonth: selectedMonth,
-                selectedDate: selectedDate,
-                onChange: (value) => setState(() => selectedMonth = value),
+                monthselected: monthselected,
+                dselected: dselected,
+                onChange: (value) => setState(() => monthselected = value),
               ),
               Expanded(
                 child: _Body(
-                  selectedDate: selectedDate,
-                  selectedMonth: selectedMonth,
-                  selectDate: (DateTime value) => setState(() {
-                    selectedDate = value;
+                  dselected: dselected,
+                  monthselected: monthselected,
+                  datechoise: (DateTime value) => setState(() {
+                    dselected = value;
                   }),
                 ),
               ),
-              
               _Bottom(
-                selectedMonth: selectedMonth,
-                onChange: (value) => setState(() => selectedMonth = value),
+                monthselected: monthselected,
+                onChange: (value) => setState(() => monthselected = value),
               )
             ],
           ),
@@ -93,21 +261,21 @@ class _MyAppState extends State<MyApp> {
 
 class _Body extends StatelessWidget {
   const _Body({
-    required this.selectedMonth,
-    required this.selectedDate,
-    required this.selectDate,
+    required this.monthselected,
+    required this.dselected,
+    required this.datechoise,
   });
 
-  final DateTime selectedMonth;
-  final DateTime? selectedDate;
+  final DateTime monthselected;
+  final DateTime? dselected;
 
-  final ValueChanged<DateTime> selectDate;
+  final ValueChanged<DateTime> datechoise;
 
   @override
   Widget build(BuildContext context) {
-    var data = CalendarMonthData(
-      year: selectedMonth.year,
-      month: selectedMonth.month,
+    var data = Calendar(
+      year: monthselected.year,
+      month: monthselected.month,
     );
 
     return Column(
@@ -124,25 +292,24 @@ class _Body extends StatelessWidget {
             Text('S'),
           ],
         ),
-        const SizedBox(height: 20),
+        const SizedBox(height: 24),
         Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Container(
               height: 1,
-              color: Colors.pink[200],
+              color: Colors.green,
             ),
             for (var week in data.weeks)
               Row(
                 children: week.map((d) {
                   return Expanded(
                     child: _RowItem(
-                      hasRightBorder: false,
+                      hrb: false,
                       date: d.date,
-                      isActiveMonth: d.isActiveMonth,
-                      onTap: () => selectDate(d.date),
-                      isSelected: selectedDate != null &&
-                          selectedDate!.isSameDate(d.date),
+                      mact: d.mact,
+                      onTap: () => datechoise(d.date),
+                      isel: dselected != null && dselected!.checkdate(d.date),
                     ),
                   );
                 }).toList(),
@@ -156,17 +323,17 @@ class _Body extends StatelessWidget {
 
 class _RowItem extends StatelessWidget {
   const _RowItem({
-    required this.hasRightBorder,
-    required this.isActiveMonth,
-    required this.isSelected,
-    required this.date,
     required this.onTap,
+    required this.hrb,
+    required this.mact,
+    required this.isel,
+    required this.date,
   });
 
-  final bool hasRightBorder;
-  final bool isActiveMonth;
+  final bool hrb;
+  final bool mact;
   final VoidCallback onTap;
-  final bool isSelected;
+  final bool isel;
 
   final DateTime date;
   @override
@@ -181,7 +348,7 @@ class _RowItem extends StatelessWidget {
       child: Container(
         alignment: Alignment.center,
         height: 55,
-        decoration: isSelected
+        decoration: isel
             ? const BoxDecoration(color: Colors.pink, shape: BoxShape.circle)
             : isToday
                 ? BoxDecoration(
@@ -196,10 +363,10 @@ class _RowItem extends StatelessWidget {
           style: TextStyle(
               fontSize: 14,
               color: isPassed
-                  ? isActiveMonth
+                  ? mact
                       ? Colors.grey
                       : Colors.transparent
-                  : isActiveMonth
+                  : mact
                       ? Colors.black
                       : Colors.grey[300]),
         ),
@@ -210,45 +377,48 @@ class _RowItem extends StatelessWidget {
 
 class _Header extends StatelessWidget {
   const _Header({
-    required this.selectedMonth,
-    required this.selectedDate,
     required this.onChange,
+    required this.monthselected,
+    required this.dselected,
   });
 
-  final DateTime selectedMonth;
-  final DateTime? selectedDate;
+  final DateTime monthselected;
+  final DateTime? dselected;
 
   final ValueChanged<DateTime> onChange;
 
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.all(8.0),
+      padding: const EdgeInsets.all(7.0),
       child: Column(
         children: [
           Text(
-              'Selected date: ${selectedDate == null ? 'non' : "${selectedDate!.day}.${selectedDate!.month}.${selectedDate!.year}"}',
-              style: TextStyle(fontSize:20,),
-              
-              ),
+            'Select date: ${dselected == null ? 'non' : "${dselected!.day}.${dselected!.month}.${dselected!.year}"}',
+            style: TextStyle(
+              fontSize: 18,
+            ),
+          ),
           Row(
             children: [
               Expanded(
                 child: Text(
-                  'Month: ${selectedMonth.month}/ Year: ${selectedMonth.year}',
+                  'Month: ${monthselected.month}/ Year: ${monthselected.year}',
                   textAlign: TextAlign.center,
-                  style: TextStyle(fontSize:16,),
+                  style: TextStyle(
+                    fontSize: 16,
+                  ),
                 ),
               ),
               IconButton(
                 onPressed: () {
-                  onChange(selectedMonth.addMonth(-1));
+                  onChange(monthselected.changemonth(-1));
                 },
                 icon: const Icon(Icons.arrow_left_sharp),
               ),
               IconButton(
                 onPressed: () {
-                  onChange(selectedMonth.addMonth(1));
+                  onChange(monthselected.changemonth(1));
                 },
                 icon: const Icon(Icons.arrow_right_sharp),
               ),
@@ -262,11 +432,11 @@ class _Header extends StatelessWidget {
 
 class _Bottom extends StatelessWidget {
   const _Bottom({
-    required this.selectedMonth,
+    required this.monthselected,
     required this.onChange,
   });
 
-  final DateTime selectedMonth;
+  final DateTime monthselected;
   final ValueChanged<DateTime> onChange;
 
   @override
@@ -275,49 +445,17 @@ class _Bottom extends StatelessWidget {
       children: [
         ElevatedButton(
           onPressed: () {
-            onChange(selectedMonth.tostartmonth(DateTime.now().month,DateTime.now().year));
+            onChange(monthselected.gotostartmonth(
+                DateTime.now().month, DateTime.now().year));
           },
           child: const Text('to start month'),
         ),
-        // ElevatedButton(
-        //   onPressed: () {},
-        //   child: const Text('cancel'),
-        // ),
       ],
     );
   }
 }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-class CalendarMonthData {
+class Calendar {
   final int year;
   final int month;
 
@@ -326,7 +464,7 @@ class CalendarMonthData {
 
   int get weeksCount => ((daysInMonth + firstDayOffset) / 7).ceil();
 
-  const CalendarMonthData({
+  const Calendar({
     required this.year,
     required this.month,
   });
@@ -337,22 +475,22 @@ class CalendarMonthData {
     return (weekdayFromMonday - ((firstDayOfWeekIndex - 1) % 7)) % 7 - 1;
   }
 
-  List<List<CalendarDayData>> get weeks {
-    final res = <List<CalendarDayData>>[];
+  List<List<CalDay>> get weeks {
+    final res = <List<CalDay>>[];
     var firstDayMonth = DateTime(year, month, 1);
     var firstDayOfWeek = firstDayMonth.subtract(Duration(days: firstDayOffset));
 
     for (var w = 0; w < weeksCount; w++) {
-      final week = List<CalendarDayData>.generate(
+      final week = List<CalDay>.generate(
         7,
         (index) {
           final date = firstDayOfWeek.add(Duration(days: index));
 
-          final isActiveMonth = date.year == year && date.month == month;
+          final mact = date.year == year && date.month == month;
 
-          return CalendarDayData(
+          return CalDay(
             date: date,
-            isActiveMonth: isActiveMonth,
+            mact: mact,
             isActiveDate: date.isToday,
           );
         },
@@ -364,14 +502,15 @@ class CalendarMonthData {
   }
 }
 
-class CalendarDayData {
-  final DateTime date;
-  final bool isActiveMonth;
+class CalDay {
   final bool isActiveDate;
+  final bool mact;
 
-  const CalendarDayData({
+  final DateTime date;
+
+  const CalDay({
     required this.date,
-    required this.isActiveMonth,
+    required this.mact,
     required this.isActiveDate,
   });
 }
